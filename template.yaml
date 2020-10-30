@@ -1,0 +1,366 @@
+Resources:
+  streamlinkfunctionServiceRole15646221:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlinkfunction/ServiceRole/Resource
+  streamlinkfunctionDF2856C1:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596eS3BucketC5FC59F3
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596eS3VersionKey5DA99A08
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596eS3VersionKey5DA99A08
+      Handler: streamlink.handler
+      Role:
+        Fn::GetAtt:
+          - streamlinkfunctionServiceRole15646221
+          - Arn
+      Runtime: python3.8
+    DependsOn:
+      - streamlinkfunctionServiceRole15646221
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlinkfunction/Resource
+      aws:asset:path: /Users/sorob/Work/rootstream-twitch-streamlink/lambda
+      aws:asset:property: Code
+  streamlinkA5C292A9:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: streamlinkapi
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Resource
+  streamlinkCloudWatchRoleA6459932:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/CloudWatchRole/Resource
+  streamlinkAccount537C7142:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - streamlinkCloudWatchRoleA6459932
+          - Arn
+    DependsOn:
+      - streamlinkA5C292A9
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Account
+  streamlinkDeployment47B0F7B13b8ef3f0f63bc50aa4759f2e2cf5a996:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: streamlinkA5C292A9
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - streamlinkproxyANY65AFCBBC
+      - streamlinkproxyC9E3586A
+      - streamlinkANY6F347911
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Deployment/Resource
+  streamlinkDeploymentStageprod421B19BC:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: streamlinkA5C292A9
+      DeploymentId:
+        Ref: streamlinkDeployment47B0F7B13b8ef3f0f63bc50aa4759f2e2cf5a996
+      StageName: prod
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/DeploymentStage.prod/Resource
+  streamlinkproxyC9E3586A:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - streamlinkA5C292A9
+          - RootResourceId
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: streamlinkA5C292A9
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/{proxy+}/Resource
+  streamlinkproxyANYApiPermissionrootstreamtwitchstreamlinkFD711F20ANYproxyCE5B8423:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - streamlinkfunctionDF2856C1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: streamlinkA5C292A9
+            - /
+            - Ref: streamlinkDeploymentStageprod421B19BC
+            - /*/*
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/{proxy+}/ANY/ApiPermission.rootstreamtwitchstreamlinkFD711F20.ANY..{proxy+}
+  streamlinkproxyANYApiPermissionTestrootstreamtwitchstreamlinkFD711F20ANYproxy349FFBF9:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - streamlinkfunctionDF2856C1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: streamlinkA5C292A9
+            - /test-invoke-stage/*/*
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/{proxy+}/ANY/ApiPermission.Test.rootstreamtwitchstreamlinkFD711F20.ANY..{proxy+}
+  streamlinkproxyANY65AFCBBC:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Ref: streamlinkproxyC9E3586A
+      RestApiId:
+        Ref: streamlinkA5C292A9
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - streamlinkfunctionDF2856C1
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/{proxy+}/ANY/Resource
+  streamlinkANYApiPermissionrootstreamtwitchstreamlinkFD711F20ANYB72B4520:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - streamlinkfunctionDF2856C1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: streamlinkA5C292A9
+            - /
+            - Ref: streamlinkDeploymentStageprod421B19BC
+            - /*/
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/ANY/ApiPermission.rootstreamtwitchstreamlinkFD711F20.ANY..
+  streamlinkANYApiPermissionTestrootstreamtwitchstreamlinkFD711F20ANY90CFAE5A:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - streamlinkfunctionDF2856C1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: streamlinkA5C292A9
+            - /test-invoke-stage/*/
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/ANY/ApiPermission.Test.rootstreamtwitchstreamlinkFD711F20.ANY..
+  streamlinkANY6F347911:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Fn::GetAtt:
+          - streamlinkA5C292A9
+          - RootResourceId
+      RestApiId:
+        Ref: streamlinkA5C292A9
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - streamlinkfunctionDF2856C1
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/streamlink/Default/ANY/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.70.0,@aws-cdk/assets=1.70.0,@aws-cdk/aws-apigateway=1.70.0,@aws-cdk/aws-applicationautoscaling=1.70.0,@aws-cdk/aws-autoscaling-common=1.70.0,@aws-cdk/aws-certificatemanager=1.70.0,@aws-cdk/aws-cloudwatch=1.70.0,@aws-cdk/aws-codeguruprofiler=1.70.0,@aws-cdk/aws-ec2=1.70.0,@aws-cdk/aws-efs=1.70.0,@aws-cdk/aws-elasticloadbalancingv2=1.70.0,@aws-cdk/aws-events=1.70.0,@aws-cdk/aws-iam=1.70.0,@aws-cdk/aws-kms=1.70.0,@aws-cdk/aws-lambda=1.70.0,@aws-cdk/aws-logs=1.70.0,@aws-cdk/aws-route53=1.70.0,@aws-cdk/aws-s3=1.70.0,@aws-cdk/aws-s3-assets=1.70.0,@aws-cdk/aws-sqs=1.70.0,@aws-cdk/aws-ssm=1.70.0,@aws-cdk/cloud-assembly-schema=1.70.0,@aws-cdk/core=1.70.0,@aws-cdk/cx-api=1.70.0,@aws-cdk/region-info=1.70.0,jsii-runtime=Python/3.8.1
+    Metadata:
+      aws:cdk:path: rootstream-twitch-streamlink/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Parameters:
+  AssetParameters0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596eS3BucketC5FC59F3:
+    Type: String
+    Description: S3 bucket for asset "0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596e"
+  AssetParameters0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596eS3VersionKey5DA99A08:
+    Type: String
+    Description: S3 key for asset version "0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596e"
+  AssetParameters0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596eArtifactHash069DAE84:
+    Type: String
+    Description: Artifact hash for asset "0a1c2a8de574d19b3078604610293fdd414fccb40df79cc75349075595da596e"
+Outputs:
+  streamlinkEndpoint165F6767:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: streamlinkA5C292A9
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: streamlinkDeploymentStageprod421B19BC
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
