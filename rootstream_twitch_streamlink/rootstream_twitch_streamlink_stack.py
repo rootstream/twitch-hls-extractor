@@ -11,7 +11,11 @@ class RootstreamTwitchStreamlinkStack(core.Stack):
         lambda_function = lb.Function(self, 'streamlinkerfunction',
            runtime=lb.Runtime.PYTHON_3_8,
            code=lb.Code.asset('lambda'),
-           handler='streamlinker.handler'
+           handler='streamlinker.handler',
+           timeout=core.Duration.seconds(30)
+           
+
+
         )
   
-        api_gateway = apigw.LambdaRestApi(self,'streamlinker', handler=lambda_function, rest_api_name='streamlinkerapi')
+        api_gateway = apigw.LambdaRestApi(self,'streamlinker', handler=lambda_function, rest_api_name='streamlinkerapi', default_cors_preflight_options = apigw.CorsOptions(allow_origins= apigw.Cors.ALL_ORIGINS) )
