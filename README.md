@@ -1,7 +1,7 @@
 
-# Welcome to your CDK Python project!
+# TWITCH HLS STREAM LINK EXTRACTOR
 
-This is a blank project for Python development with CDK.
+This is a simple AWS Lambda project that serves an api endpoint that returns the HLS streaming link of your current twitch broadcast.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
